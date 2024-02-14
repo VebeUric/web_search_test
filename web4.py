@@ -38,13 +38,12 @@ organization = json_response["features"][0]
 
 org_name = organization["properties"]["CompanyMetaData"]["name"]
 org_address = organization["properties"]["CompanyMetaData"]["address"]
-print()
 
 point = organization["geometry"]["coordinates"]
 org_point = "{0},{1}".format(point[0], point[1])
 delta = "0.005"
 coordss = [org_point, address_ll]
-print(coordss)
+
 map_params = {
     "ll": address_ll,
     "spn": ",".join([delta, delta]),
@@ -58,11 +57,10 @@ organization_info = organization["properties"]["CompanyMetaData"]
 distance = find_distance(coordss)
 organization_snipet = f" Название: {org_name} \n Адресс: {org_address} Часы работы: {organization_info['Hours']} \n " \
                       f"Номер телефона: {organization_info['Phones'][0]['formatted']} \n Расстояние до места: {distance if distance > 1 else distance * 1000} "
-print(organization_snipet)
+
 
 map_api_server = "http://static-maps.yandex.ru/1.x/"
 response = requests.get(map_api_server, params=map_params)
 
 Image.open(BytesIO(
     response.content)).show()
-print(21)

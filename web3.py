@@ -57,14 +57,14 @@ for i in range(0, count):
         color = 'bl'
     pt_param += f'~{cords},pm2{color}l'
 
-print(f'{corgs_points[-1]},{address_ll.split()[-1]}')
+
 distance = find_distance_degrees_and_radians([corgs_points[-1], address_ll.split()[-1]])
-print(distance)
+
 
 delta = distance
 map_params = {
     "ll": address_ll,
-    "spn": ",".join([str(delta[4]), str(delta[5])]),
+    "spn": ",".join([str(delta[5] + 0.005), str(delta[4] + 0.005)]),
     "l": "map",
     "pt": pt_param
 }
