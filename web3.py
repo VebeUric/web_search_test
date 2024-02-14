@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image
 import requests
 import sys
-from web_func import get_coords, find_distance
+from web_func import get_coords, find_distance_degrees_and_radians
 
 search_api_server = "https://search-maps.yandex.ru/v1/"
 geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
@@ -32,39 +32,45 @@ response = requests.get(search_api_server, params=search_params)
 if not response:
     pass
 
-
-# Преобразуем ответ в json-объект
+orgs_names = []
+orgs_addresses = []
+points = []
+corgs_points = []
+count = 10
+no_inform = None
 json_response = response.json()
-organization = json_response["features"][0]
+organization = json_response["features"][:count]
+pt_param = f'{address_ll},pm2vvl'
+for i in range(0, count):
+    orgs_names.append(organization[i]["properties"]["CompanyMetaData"]["name"])
+    orgs_addresses.append(organization[i]["properties"]["CompanyMetaData"]["address"])
+    point = organization[i]["geometry"]["coordinates"]
+    cords = "{0},{1}".format(point[0], point[1])
+    corgs_points.append(cords)
+    corgs_points.append(cords)
+    hours = organization[i]["properties"]["CompanyMetaData"]['Hours']['text']
+    if not hours:
+        color = 'gr'
+    elif 'круглосуточно' in hours.split():
+        color = 'gn'
+    elif 'круглосуточно' not in hours.split():
+        color = 'bl'
+    pt_param += f'~{cords},pm2{color}l'
 
-org_name = organization["properties"]["CompanyMetaData"]["name"]
-org_address = organization["properties"]["CompanyMetaData"]["address"]
-print()
+print(f'{corgs_points[-1]},{address_ll.split()[-1]}')
+distance = find_distance_degrees_and_radians([corgs_points[-1], address_ll.split()[-1]])
+print(distance)
 
-point = organization["geometry"]["coordinates"]
-org_point = "{0},{1}".format(point[0], point[1])
-delta = "0.005"
-coordss = [org_point, address_ll]
-print(coordss[1])
+delta = distance
 map_params = {
     "ll": address_ll,
-    "spn": ",".join([delta, delta]),
+    "spn": ",".join([str(delta[4]), str(delta[5])]),
     "l": "map",
-    "pt": "{0},pm2dgl~{1},pm2rdl".format(*coordss)
+    "pt": pt_param
 }
-
-organization_info = organization["properties"]["CompanyMetaData"]
-# organization_snipet = {'working_time': organization_info['Hours'],
-#                        'phone_number': organization_info[]
-distance = find_distance(coordss)
-organization_snipet = f" Название: {org_name} \n Адресс: {org_address} Часы работы: {organization_info['Hours']} \n " \
-                      f"Номер телефона: {organization_info['Phones'][0]['formatted']} \n Расстояние до места: {distance if distance > 1 else distance * 1000} "
-print(organization_snipet)
-
 
 map_api_server = "http://static-maps.yandex.ru/1.x/"
 response = requests.get(map_api_server, params=map_params)
 
 Image.open(BytesIO(
     response.content)).show()
-print(123)

@@ -44,7 +44,7 @@ point = organization["geometry"]["coordinates"]
 org_point = "{0},{1}".format(point[0], point[1])
 delta = "0.005"
 coordss = [org_point, address_ll]
-print(coordss[1])
+print(coordss)
 map_params = {
     "ll": address_ll,
     "spn": ",".join([delta, delta]),
